@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fan.mapper.ClassifyMapper">
+
+    <insert id="addClassify">
+        insert into blog.classify(blog.classify.article_id, blog.classify.label_id) values
+        <foreach collection="ids" item="id" separator=",">
+            (#{articleId},#{id})
+        </foreach>
+    </insert>
+
+
+<!--    // 查 查询一个文章的所有标签id-->
+<!--    List<Integer> queryLabelId(int articleId);-->
+    <select id="queryLabelId" parameterType="int" resultType="int">
+        select label_id from blog.classify
+        where article_id = #{articleId}
+    </select>
+
+
+    <select id="getAllLabelsByArticleId" parameterType="int" resultType="string">
+        select name from blog.label join classify  on label.label_id = classify.label_id
+        where article_id = #{articleId}
+    </select>
+
+
+    <select id="getAllArticleIdByLabels" parameterType="string" resultType="Article">
+select * from blog.article
+where article_id in
+       ( select article_id from classify
+        join label where classify.label_id = label.label_id
+        and  name = #{label}  )
+limit 0,3
+
+    </select>
+
+</mapper>

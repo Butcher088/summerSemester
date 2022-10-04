@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fan.mapper.CollectMapper">
+
+    <insert id="collect">
+        INSERT INTO blog.collect VALUES (#{userId}, #{collectedId},#{articleId}, #{time}, #{status})
+    </insert>
+
+    <update id="cancelCollect">
+        UPDATE blog.collect SET status = 0, time = #{time}
+        WHERE user_id = #{userId} AND article_id = #{articleId}
+    </update>
+
+    <select id="whetherCollect" resultType="Collect">
+        SELECT * FROM blog.collect WHERE user_id = #{userId} AND article_id = #{articleId}
+    </select>
+
+    <update id="reCollect">
+        UPDATE blog.collect SET status = 1, time = #{time}
+        WHERE user_id = #{userId} AND article_id = #{articleId}
+    </update>
+</mapper>

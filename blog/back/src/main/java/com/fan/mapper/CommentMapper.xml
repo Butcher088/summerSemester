@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.fan.mapper.CommentMapper">
+
+    <resultMap id="CommentMap" type="com.fan.entity.Comment">
+        <id column="comment_id" property="comment_id"/>
+        <result column="from_id" property="from_id"/>
+        <result column="time" property="time"/>
+        <result column="content" property="content"/>
+        <result column="article_id" property="article_id"/>
+        <result column="father_id" property="father_id"/>
+        <result column="root_id" property="root_id"/>
+        <result column="userName" property="from_name"/>
+        <result column="img" property="img"/>
+        <result column="position" property="position"/>
+        <result column="sum_like" property="like"/>
+    </resultMap>
+
+
+    <select id="getCommentsById" resultMap="CommentMap">
+        select * from comment join user  on comment.from_id = user.user_id where comment.article_id = #{articleId};
+    </select>
+
+    <select id="getCommentsCountById" resultType="int" >
+        select count(*) from comment join user  on comment.from_id = user.user_id where comment.article_id = #{articleId};
+    </select>
+
+    <insert id="insertComment">
+        insert into comment(from_id,time,content,article_id,father_id,root_id,sum_like)
+        values (#{from_id},#{time},#{content},#{article_id},#{father_id},#{root_id},0);
+    </insert>
+
+    <select id="getUserById"  resultType="com.fan.entity.User">
+        select * from user where user_id = #{id};
+    </select>
+
+    <insert id="giveLikeToComment">
+        insert into commentlike(user_id,liked_id,article_id,time,comment_id)
+        values (#{userId},#{likedId},#{articleId},#{time},#{commentId});
+    </insert>
+
+    <select id="isMyLikeComment" resultType="com.fan.entity.Like">
+        select * from commentlike where user_id=#{userId} and article_id=#{articleId} and comment_id=#{commentId};
+    </select>
+
+    <update id="addCommentLike">
+        update comment set sum_like=sum_like+1 where comment_id=#{commentId};
+    </update>
+
+    <update id="subCommentLike">
+        update comment set sum_like=sum_like-1 where comment_id=#{commentId};
+    </update>
+
+    <delete id="deleteMyLikeComment">
+        delete from commentlike where user_id=#{userId} and article_id=#{articleId} and comment_id=#{commentId} and liked_id = #{likedId};
+    </delete>
+
+
+</mapper>

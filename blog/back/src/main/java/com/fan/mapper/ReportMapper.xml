@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fan.mapper.ReportMapper">
+
+    <insert id="newReport">
+        INSERT INTO blog.report(user_id,article_id,reported_id,content,img,time,handle)
+                VALUES (#{userId},#{articleId},#{reportedId},#{content},#{img},#{time},0)
+    </insert>
+
+    <resultMap type="com.fan.entity.Report" id="ReportResult">
+        <result property="reportId"    column="report_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="articleId"    column="article_id"    />
+        <result property="reportedId"    column="reported_id"    />
+        <result property="content"    column="content"    />
+        <result property="img"    column="img"    />
+        <result property="time"    column="time"    />
+        <result property="handle"    column="handle"    />
+    </resultMap>
+
+    <sql id="selectReportVo">
+        select report_id, user_id, article_id, reported_id, content, img, time, handle from report
+    </sql>
+
+    <select id="selectReportList" parameterType="com.fan.entity.Report" resultMap="ReportResult">
+        <include refid="selectReportVo"/>
+        <where>
+            <if test="userId != null and userId != 0"> and user_id = #{userId}</if>
+            <if test="articleId != null and articleId != 0 " > and article_id = #{articleId}</if>
+            <if test="reportedId != null and reportedId != 0"> and reported_id = #{reportedId}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="img != null  and img != ''"> and img = #{img}</if>
+            <if test="time != null "> and time = #{time}</if>
+            <if test="handle != null and handle != 0"> and handle = #{handle}</if>
+        </where>
+    </select>
+
+    <select id="selectReportByReportId" parameterType="Long" resultMap="ReportResult">
+        <include refid="selectReportVo"/>
+        where report_id = #{reportId}
+    </select>
+
+    <insert id="insertReport" parameterType="com.fan.entity.Report" useGeneratedKeys="true" keyProperty="reportId">
+        insert into report
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="articleId != null">article_id,</if>
+            <if test="reportedId != null">reported_id,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="img != null">img,</if>
+            <if test="time != null">time,</if>
+            <if test="handle != null">handle,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="articleId != null">#{articleId},</if>
+            <if test="reportedId != null">#{reportedId},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="img != null">#{img},</if>
+            <if test="time != null">#{time},</if>
+            <if test="handle != null">#{handle},</if>
+        </trim>
+    </insert>
+
+<!--    <update id="updateReport" parameterType="com.fan.entity.Report">-->
+<!--        update report-->
+<!--        <trim prefix="SET" suffixOverrides=",">-->
+<!--            <if test="userId != null">user_id = #{userId},</if>-->
+<!--            <if test="articleId != null">article_id = #{articleId},</if>-->
+<!--            <if test="reportedId != null">reported_id = #{reportedId},</if>-->
+<!--            <if test="content != null and content != ''">content = #{content},</if>-->
+<!--            <if test="img != null">img = #{img},</if>-->
+<!--            <if test="time != null">time = #{time},</if>-->
+<!--            <if test="handle != null">handle = #{handle},</if>-->
+<!--        </trim>-->
+<!--        where report_id = #{reportId}-->
+<!--    </update>-->
+
+    <delete id="deleteReportByReportId" parameterType="Long">
+        delete from report where report_id = #{reportId}
+    </delete>
+
+    <delete id="deleteReportByReportIds" parameterType="String">
+        delete from report where report_id in
+        <foreach item="reportId" collection="array" open="(" separator="," close=")">
+            #{reportId}
+        </foreach>
+    </delete>
+
+    <update id="updateReport">
+        update report set handle = 1 where report_id = #{reportId};
+    </update>
+</mapper>

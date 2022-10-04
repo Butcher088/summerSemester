@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fan.mapper.LabelMapper">
+
+    <insert id="addLabel" parameterType="Label">
+        insert into blog.label(blog.label.label_id, blog.label.name)
+        values (#{labelId},#{name})
+    </insert>
+
+    <delete id="deleteLabel" parameterType="int">
+        delete from blog.label
+        where blog.label.label_id = #{labelId}
+    </delete>
+
+    <update id="updateLabel" parameterType="Label">
+        update blog.label
+        set blog.label.name = #{name}
+        where blog.label.label_id = #{labelId}
+    </update>
+
+    <select id="queryAllLabel" resultType="Label">
+        select * from blog.label
+    </select>
+
+<!--    // 根据标签ids查询文章的所有标签-->
+<!--    List<Label> queryLabelByIds(Map<String,Object> map);-->
+    <select id="queryLabelByIds" parameterType="int" resultType="String">
+        select name from blog.label
+        <where>
+            <foreach collection="ids" item="id" open="and (" close=")" separator="or">
+                label_id = #{id}
+            </foreach>
+        </where>
+    </select>
+
+<!--    // 根据标签名数组查询标签Id-->
+<!--    List<Integer> queryLabelId(String[] names);-->
+    <select id="queryLabelId" resultType="int" parameterType="string">
+        select label_id from blog.label where
+        <foreach collection="names" separator="or" item="name">
+            name = #{name}
+        </foreach>
+    </select>
+
+
+    <resultMap type="com.fan.entity.Label" id="LabelResult">
+        <result property="labelId"    column="label_id"    />
+        <result property="name"    column="name"    />
+    </resultMap>
+
+    <sql id="selectLabelVo">
+        select label_id, name from label
+    </sql>
+
+    <select id="selectLabelList" parameterType="com.fan.entity.Label" resultMap="LabelResult">
+        <include refid="selectLabelVo"/>
+        <where>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectLabelByLabelId" parameterType="Long" resultMap="LabelResult">
+        <include refid="selectLabelVo"/>
+        where label_id = #{labelId}
+    </select>
+
+    <insert id="insertLabel" parameterType="com.fan.entity.Label" useGeneratedKeys="true" keyProperty="labelId">
+        insert into label
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+        </trim>
+    </insert>
+
+
+    <delete id="deleteLabelByLabelId" parameterType="Long">
+        delete from label where label_id = #{labelId}
+    </delete>
+
+    <delete id="deleteLabelByLabelIds" parameterType="String">
+        delete from label where label_id in
+        <foreach item="labelId" collection="array" open="(" separator="," close=")">
+            #{labelId}
+        </foreach>
+    </delete>
+</mapper>

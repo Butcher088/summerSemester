@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fan.mapper.ArticleMapper">
+
+<!--    keyproperty=“id” 属性设置该主键对应的实体的属性。
+ ：只有设置了主键自增的才能返回，并且返回的主键值会放到插入的对象里keyproperty所对应的属性上。-->
+    <insert useGeneratedKeys="true" keyProperty="articleId"
+            id="addArticle" parameterType="com.fan.entity.Article">
+        insert into blog.article (article_id, user_id, create_time, html_content, title,
+                                  like_count, collect_count, click_count, edit_time,md_content,
+                                 summary,cover )
+        values (#{articleId},#{userId},#{createTime},#{htmlContent},#{title},
+                #{likeCount},#{collectCount},#{clickCount},#{editTime},#{mdContent},#{summary},
+                #{cover})
+    </insert>
+
+    <delete id="deleteArticle" parameterType="int">
+        delete from article where article_id = #{articleId}
+    </delete>
+
+<!--    <update id="updateArticle" parameterType="Article">-->
+<!--        update article-->
+<!--        set -->
+<!--        where article_id = #{articleId}-->
+<!--    </update>-->
+
+<!--    查询所有-->
+    <select id="queryAllArticle" resultType="com.fan.entity.Article" parameterType="map">
+        select * from article
+        <if test="startIndex != null ">
+            limit #{startIndex},#{pageSize}
+        </if>
+    </select>
+
+<!--    莫名其妙爆红，不影响运行 -->
+    <select id="queryAllArticleByTitle" resultType="com.fan.entity.Article" parameterType="map">
+        select * from article
+        <choose>
+            <when test="title == '推荐' ">
+                order by like_count desc
+            </when>
+            <when test="title == '热度' ">
+                order by click_count desc
+            </when>
+            <when test="title == '最新' ">
+                order by create_time desc
+            </when>
+            <when test="title == '前端' ">
+                where article_id in
+                            (select article_id from classify
+                            join label where classify.label_id = label.label_id
+                            and `name`='前端'	)
+            </when>
+            <when test="title == '后端' ">
+                            where article_id in
+                            (select article_id from classify
+                            join label where classify.label_id = label.label_id
+                            and `name`='后端'	)
+            </when>
+            <when test="title == '人工智能' ">
+                            where article_id in
+                            (select article_id from classify
+                            join label where classify.label_id = label.label_id
+                            and `name`='人工智能'	)
+            </when>
+            <otherwise>
+               where title like "%"#{title}"%" or summary like  "%"#{title}"%"
+                    or html_content like "%"#{title}"%"
+            </otherwise>
+        </choose>
+
+
+        <if test="startIndex != null ">
+            limit #{startIndex},#{pageSize}
+        </if>
+    </select>
+
+    <select id="getArticleById" parameterType="int" resultType="com.fan.entity.Article">
+        select * from blog.article
+        where article_id = #{articleId}
+    </select>
+
+    <update id="addViews">
+        UPDATE blog.article SET click_count = click_count + 1 WHERE article_id = #{articleId}
+    </update>
+
+    <select id="getCommentCount" resultType="int">
+        SELECT COUNT(*) FROM blog.comment WHERE article_id = #{articleId} AND status != 0
+    </select>
+
+    <select id="getLikeCount" resultType="int">
+        SELECT COUNT(*) FROM blog.like WHERE article_id = #{articleId}  AND status != 0
+    </select>
+
+<!--    // 点赞加一-->
+<!--    int addLike(int articleId);-->
+
+<!--    // 取消点赞-->
+<!--    int cancelLike(int articleId);-->
+
+<!--    // 收藏加一-->
+<!--    int addCollect(int articleId);-->
+
+<!--    // 取消收藏-->
+<!--    int cancelCollect(int articleId);-->
+
+    <update id="addLike" parameterType="int">
+        update blog.article set blog.article.like_count = (blog.article.like_count+1)
+        where blog.article.article_id = #{articleId}
+    </update>
+
+    <update id="cancelLike" parameterType="int">
+        update blog.article set blog.article.like_count = (blog.article.like_count-1)
+        where blog.article.article_id = #{articleId}
+    </update>
+
+    <update id="addCollect" parameterType="int">
+        update blog.article set blog.article.collect_count = (blog.article.collect_count+1)
+        where blog.article.article_id = #{articleId}
+    </update>
+
+    <update id="cancelCollect" parameterType="int">
+        update blog.article set blog.article.collect_count = (blog.article.collect_count-1)
+        where blog.article.article_id = #{articleId}
+    </update>
+
+
+    <insert id="addDraft" parameterType="Draft">
+        insert into draft (article_id,user_id,create_time,html_content,
+                                 title,edit_time,md_content,summary,cover)
+        values ( #{articleId},#{userId},#{createTime},#{htmlContent},
+                #{title},#{editTime},#{mdContent},#{summary},#{cover} )
+    </insert>
+
+</mapper>

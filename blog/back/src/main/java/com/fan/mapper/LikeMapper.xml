@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fan.mapper.LikeMapper">
+
+    <insert id="like">
+        INSERT INTO blog.like VALUES (#{userId}, #{likedId},#{articleId}, #{time}, #{status})
+    </insert>
+
+    <update id="cancelLike">
+        UPDATE blog.like SET status = 0, time = #{time}
+        WHERE user_id = #{userId} AND article_id = #{articleId}
+    </update>
+
+    <select id="whetherLike" resultType="Like">
+        SELECT * FROM blog.like WHERE user_id = #{userId}
+                                         AND article_id = #{articleId}
+    </select>
+
+    <update id="reLike">
+        UPDATE blog.like SET status = 1, time = #{time}
+        WHERE user_id = #{userId} AND article_id = #{articleId}
+    </update>
+</mapper>
